@@ -26,7 +26,7 @@
 | 4   | [04_iBeacon検知.md](04_iBeacon検知.md)                   | UUID/Major/Minor/RSSI フィルタ、検知 → Slack ステータス更新   | 1〜2 日  |
 | 5   | [05_冪等化.md](05_冪等化.md)                             | AsyncStorage で同日重複防止、レート制限対応                   | 半日     |
 | 6   | [06_バックグラウンド検知.md](06_バックグラウンド検知.md) | iOS Region Monitoring / Android Foreground Service           | 2〜3 日  |
-| 7   | [07_動作確認.md](07_動作確認.md)                         | 受け入れ基準のチェック、よくあるエラーと対処                  | 1 日     |
+| 7   | [07_動作確認.md](07_動作確認.md)                         | iOS 実機ビルドの完全ガイド (Xcode/Signing/Disk/Trust)、受け入れ基準のチェック、よくあるエラーと対処 | 1〜2 日  |
 
 ## 進め方の原則
 
