@@ -1,0 +1,84 @@
+{
+  "expo": {
+    "name": "出社番長 (Phase1)",
+    "slug": "shussha-bancho",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "scheme": "shusshabancho",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "jp.co.fusic.shusshabancho.phase1",
+      "infoPlist": {
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "オフィス入口に設置した iBeacon を検知して出社を自動記録するために、常に位置情報の使用許可が必要です。",
+        "NSLocationWhenInUseUsageDescription": "オフィス入口に設置した iBeacon を検知して出社を自動記録するために、位置情報の使用許可が必要です。",
+        "NSLocationAlwaysUsageDescription": "オフィス入口に設置した iBeacon を検知して出社を自動記録するために、常に位置情報の使用許可が必要です。",
+        "NSBluetoothAlwaysUsageDescription": "iBeacon の電波を検知するために Bluetooth を使用します。",
+        "NSBluetoothPeripheralUsageDescription": "iBeacon の電波を検知するために Bluetooth を使用します。",
+        "UIBackgroundModes": ["location", "bluetooth-central", "fetch"]
+      }
+    },
+    "android": {
+      "package": "jp.co.fusic.shusshabancho.phase1",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "BLUETOOTH",
+        "BLUETOOTH_ADMIN",
+        "BLUETOOTH_SCAN",
+        "BLUETOOTH_CONNECT",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_LOCATION",
+        "POST_NOTIFICATIONS",
+        "WAKE_LOCK"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "オフィス入口に設置した iBeacon を検知して出社を自動記録するために、常に位置情報の使用許可が必要です。",
+          "locationAlwaysPermission": "オフィス入口に設置した iBeacon を検知して出社を自動記録するために、常に位置情報の使用許可が必要です。",
+          "locationWhenInUsePermission": "オフィス入口に設置した iBeacon を検知して出社を自動記録するために、位置情報の使用許可が必要です。",
+          "isIosBackgroundLocationEnabled": true,
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true
+        }
+      ],
+      "expo-task-manager",
+      "expo-notifications",
+      "react-native-beacon-radar",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "15.1"
+          },
+          "android": {
+            "minSdkVersion": 26,
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35
+          }
+        }
+      ]
+    ]
+  }
+}
