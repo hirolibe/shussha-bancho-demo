@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "出社番長 (Phase1)",
+    "name": "ShusshaBancho",
     "slug": "shussha-bancho",
     "version": "0.1.0",
     "orientation": "portrait",
@@ -17,6 +17,7 @@
       "supportsTablet": false,
       "bundleIdentifier": "jp.co.fusic.shusshabancho.phase1",
       "infoPlist": {
+        "CFBundleDisplayName": "出社番長 (Phase1)",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "オフィス入口に設置した iBeacon を検知して出社を自動記録するために、常に位置情報の使用許可が必要です。",
         "NSLocationWhenInUseUsageDescription": "オフィス入口に設置した iBeacon を検知して出社を自動記録するために、位置情報の使用許可が必要です。",
         "NSLocationAlwaysUsageDescription": "オフィス入口に設置した iBeacon を検知して出社を自動記録するために、常に位置情報の使用許可が必要です。",
