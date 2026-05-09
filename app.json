@@ -65,7 +65,6 @@
         }
       ],
       "expo-task-manager",
-      "expo-notifications",
       "react-native-beacon-radar",
       [
         "expo-build-properties",
