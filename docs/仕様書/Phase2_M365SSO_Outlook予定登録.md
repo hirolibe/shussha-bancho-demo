@@ -70,17 +70,89 @@
 ## 4. 認証アーキテクチャ
 
 ### 4.1 Entra ID 設定（管理者作業）
-1. Microsoft Entra 管理センターでアプリ登録
-2. **プラットフォーム**: Mobile and desktop applications
-3. **リダイレクトURI**:
-   - iOS: `msauth.<bundle_id>://auth`
-   - Android: `msauth://<package_name>/<base64_signature_hash>`
-4. **API permissions（委任権限）**:
-   - `User.Read`（自分のプロフィール取得）
-   - `Calendars.ReadWrite`（自分のカレンダー読み書き）
-   - `offline_access`（リフレッシュトークン）
-   - `openid` / `profile` / `email`
-5. **管理者の同意**を取得（社員個別同意を不要にする）
+
+> Phase 2 は **モバイルアプリ + PKCE** 方式。
+> Web アプリの SSO（remote-switch 等）と異なり **クライアントシークレットは作成しない**。
+
+#### 4.1.1 アプリ登録
+
+1. [Microsoft Entra 管理センター](https://entra.microsoft.com/) にサインイン
+2. 左メニュー「ID」→「アプリケーション」→「アプリの登録」
+3. 「新規登録」をクリック
+4. 以下を入力して「登録」:
+
+| 項目 | 値 |
+|---|---|
+| 名前 | `Shussha Bancho`（任意） |
+| サポートされているアカウントの種類 | **組織ディレクトリ内のアカウントのみ（シングルテナント）** |
+| リダイレクト URI | ここでは未設定（4.1.2 で追加） |
+
+5. 登録完了後、概要画面で以下を記録:
+   - **アプリケーション (クライアント) ID** → `M365_CLIENT_ID`
+   - **ディレクトリ (テナント) ID** → `M365_TENANT_ID`
+
+#### 4.1.2 プラットフォーム = Mobile and desktop applications
+
+1. 左メニュー「認証」
+2. 「プラットフォームを追加」→ **「Mobile and desktop applications」** を選択
+3. 「カスタム リダイレクト URI」に以下を **両方** 登録:
+   - iOS 用: `msauth.<iOS Bundle ID>://auth`
+     - 例: `msauth.co.fusic.shusshabancho://auth`
+   - Android 用: `msauth://<Android Package Name>/<base64 signature hash>`
+     - signature hash の取得:
+       ```bash
+       keytool -exportcert -alias <key alias> -keystore <keystore path> \
+         | openssl sha1 -binary | openssl base64
+       ```
+4. 「構成」→「保存」
+
+> ⚠️ **「Web」プラットフォームを選んではいけない**。Web 登録だと Client Secret 必須になり PKCE 単独では認証が通らない。
+
+#### 4.1.3 パブリック クライアント フローの許可
+
+1. 「認証」画面の最下部「詳細設定」
+2. **「パブリック クライアント フローを許可する」を「はい」** に変更
+3. 「保存」
+
+> モバイルアプリは Client Secret を保持できない＝「パブリック クライアント」扱い。
+> この設定が無効だと `AADSTS7000218: client_assertion or client_secret required` で失敗する。
+
+#### 4.1.4 API アクセス許可（委任権限）
+
+1. 左メニュー「API のアクセス許可」
+2. 「アクセス許可の追加」→「Microsoft Graph」→ **「委任されたアクセス許可」**
+3. 以下にチェックを入れて「アクセス許可の追加」:
+
+| スコープ | 用途 |
+|---|---|
+| `User.Read` | サインインユーザーのプロフィール取得 |
+| `Calendars.ReadWrite` | Outlook カレンダー読み書き（**本アプリの核**） |
+| `offline_access` | refresh_token 発行（端末内で更新） |
+| `openid` | OIDC 必須 |
+| `profile` | UPN・表示名取得 |
+| `email` | メールアドレス取得 |
+
+4. **「<テナント名> に管理者の同意を与えます」** をクリック → 「はい」
+   - `Calendars.ReadWrite` は管理者同意が必要なケースが多い → **情シスとの事前調整を §15 の次アクションに含める**
+
+#### 4.1.5 設定検証チェックリスト
+
+- [ ] テナント ID / クライアント ID を控えた
+- [ ] プラットフォームが **Mobile and desktop applications**
+- [ ] リダイレクト URI に iOS/Android 両方が登録済み
+- [ ] **「パブリック クライアント フローを許可する」= はい**
+- [ ] API のアクセス許可に上記 6 スコープが揃い、ステータスが **「<テナント> に付与済み」**
+- [ ] **クライアントシークレットを作成していない**（作ってあったら削除）
+
+#### 4.1.6 よくあるエラーと対処
+
+| エラー | 原因 | 対処 |
+|---|---|---|
+| `AADSTS50011: redirect_uri_mismatch` | アプリ実装の redirectUri と Entra ID 登録値が不一致 | 4.1.2 の URI とアプリ側 `AuthSession.makeRedirectUri` 等の出力を一致させる |
+| `AADSTS7000218: client_assertion or client_secret required` | パブリック クライアント フロー無効 | 4.1.3 を有効化 |
+| `AADSTS65001: consent_required` | 管理者同意未完了 / スコープ追加後に同意し直していない | 4.1.4 で再度「管理者の同意」を実施 |
+| `invalid_grant: PKCE verification failed` | code_verifier と code_challenge が不一致 | アプリ側の PKCE 生成・保管ロジックを確認（`expo-auth-session` の標準フローに乗っていれば通常発生しない） |
+| `AADSTS90008` / `insufficient_scope` | `Calendars.ReadWrite` が付与されていない | 4.1.4 でスコープを追加して管理者同意 |
 
 ### 4.2 オンデバイス PKCE フロー（バックエンド経由しない）
 
